@@ -501,7 +501,9 @@
         "NoControllerFound": "No se encontró ningún controlador.",
         "SelectDevice": "Seleccionar dispositivo...",
         "SearchDevice": "Buscar dispositivo...",
-        "NoDeviceFound": "No se encontró ningún dispositivo."
+        "NoDeviceFound": "No se encontró ningún dispositivo.",
+        "SkipOnRetrigger": "Omitir durante la reactivación",
+        "SkipOnRetriggerDescription": "Ignorar esta entrada mientras MobiFlight reactiva todos los interruptores, p. ej. para pulsadores momentáneos."
       },
       "Action": {
         "Title": "Acciones",
@@ -942,6 +944,8 @@
       "RunOptions": {
         "Title": "Opciones de inicio y ejecución",
         "AutoRetrigger": "Realizar automáticamente la acción de reactivación con el modo \"run\"",
+        "RetriggerEventDelay": "Retardo entre eventos reactivados",
+        "RetriggerEventDelayDescription": "Espacia los eventos enviados mientras se reactivan los interruptores, para complementos que fallan con una ráfaga de comandos. 0 los envía todos a la vez.",
         "MinimizeOnAutoRun": "Minimizar en AutoRun"
       },
       "HubHop": {

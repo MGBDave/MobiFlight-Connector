@@ -29,6 +29,7 @@ namespace MobiFlight.Base.Tests
             {
                 ArcazeSupportEnabled = true,
                 AutoRetrigger = true,
+                RetriggerEventDelay = 25,
                 AutoRun = true,
                 AutoLoadLinkedConfig = true,
                 BetaUpdates = true,
@@ -61,6 +62,7 @@ namespace MobiFlight.Base.Tests
             // Assert
             Assert.IsTrue(settings.ArcazeSupportEnabled);
             Assert.IsTrue(settings.AutoRetrigger);
+            Assert.AreEqual(25, settings.RetriggerEventDelay);
 
             Assert.IsTrue(settings.AutoRun);
             Assert.IsTrue(settings.AutoLoadLinkedConfig);
@@ -97,6 +99,7 @@ namespace MobiFlight.Base.Tests
             {
                 ArcazeSupportEnabled = true,
                 AutoRetrigger = true,
+                RetriggerEventDelay = 25,
                 AutoRun = true,
                 AutoLoadLinkedConfig = true,
                 BetaUpdates = true,
@@ -129,6 +132,7 @@ namespace MobiFlight.Base.Tests
             // Assert
             Assert.IsTrue(properties.ArcazeSupportEnabled);
             Assert.IsTrue(properties.AutoRetrigger);
+            Assert.AreEqual(25, properties.RetriggerEventDelay);
             Assert.IsTrue(properties.AutoRun);
             Assert.IsTrue(properties.AutoLoadLinkedConfig);
             Assert.IsTrue(properties.BetaUpdates);
@@ -153,6 +157,23 @@ namespace MobiFlight.Base.Tests
             Assert.AreEqual(8085, properties.ProSimPort);
             Assert.IsFalse(properties.ProSimAutoConnectEnabled);
             Assert.AreEqual(7, properties.ProSimMaxRetryAttempts);
+        }
+
+        [TestMethod]
+        [DataRow(-5, 0)]
+        [DataRow(25, 25)]
+        [DataRow(5000, 1000)]
+        public void Settings_ApplyTo_ClampsRetriggerEventDelay(int requested, int expected)
+        {
+            // Arrange
+            var properties = new Properties.Settings();
+            var settings = new Settings { RetriggerEventDelay = requested };
+
+            // Act
+            settings.ApplyTo(properties);
+
+            // Assert
+            Assert.AreEqual(expected, properties.RetriggerEventDelay);
         }
 
         [TestMethod]

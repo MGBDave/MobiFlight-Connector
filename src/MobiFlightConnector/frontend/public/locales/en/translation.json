@@ -495,7 +495,9 @@
         "NoControllerFound": "No controller found.",
         "SelectDevice": "Select device...",
         "SearchDevice": "Search device...",
-        "NoDeviceFound": "No device found."
+        "NoDeviceFound": "No device found.",
+        "SkipOnRetrigger": "Skip during retrigger",
+        "SkipOnRetriggerDescription": "Ignore this input while MobiFlight retriggers all switches, e.g. for momentary push buttons."
       },
       "Action": {
         "Title": "Actions",
@@ -936,6 +938,8 @@
       "RunOptions": {
         "Title": "Startup and Run options",
         "AutoRetrigger": "Automatically perform retrigger-action with \"run\"-mode",
+        "RetriggerEventDelay": "Delay between retriggered events",
+        "RetriggerEventDelayDescription": "Spaces out the events sent while switches are retriggered, for add-ons that crash on a burst of commands. 0 sends them all at once.",
         "MinimizeOnAutoRun": "Minimize on AutoRun"
       },
       "HubHop": {

@@ -7,6 +7,7 @@ namespace MobiFlight.Base
     {
         public bool ArcazeSupportEnabled { get; set; }
         public bool AutoRetrigger { get; set; }
+        public int RetriggerEventDelay { get; set; }
         public bool AutoRun { get; set; }
         public bool AutoLoadLinkedConfig { get; set; }
         public bool BetaUpdates { get; set; }
@@ -41,6 +42,7 @@ namespace MobiFlight.Base
         {
             ArcazeSupportEnabled = settings.ArcazeSupportEnabled;
             AutoRetrigger = settings.AutoRetrigger;
+            RetriggerEventDelay = settings.RetriggerEventDelay;
             AutoRun = settings.AutoRun;
             AutoLoadLinkedConfig = settings.AutoLoadLinkedConfig;
             BetaUpdates = settings.BetaUpdates;
@@ -84,6 +86,7 @@ namespace MobiFlight.Base
 
             settings.ArcazeSupportEnabled = ArcazeSupportEnabled;
             settings.AutoRetrigger = AutoRetrigger;
+            settings.RetriggerEventDelay = Math.Max(0, Math.Min(global::MobiFlight.Execution.RetriggerEventPacer.MaxDelayMs, RetriggerEventDelay));
             settings.AutoRun = AutoRun;
             settings.AutoLoadLinkedConfig = AutoLoadLinkedConfig;
             settings.BetaUpdates = BetaUpdates;

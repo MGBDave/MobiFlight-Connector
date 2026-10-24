@@ -907,6 +907,32 @@ test.describe("Input Config Wizard - Trigger Panel", () => {
       ).toBeVisible()
     }
   })
+
+  test("Skip during retrigger switch updates the config item", async ({
+    configListPage,
+    page,
+  }) => {
+    await configListPage.gotoPage()
+    await configListPage.mobiFlightPage.initWithTestData("inputaction")
+
+    await configListPage.clickEditButtonForRow(1)
+    const triggerPanel = page.getByTestId("trigger-panel")
+    const skipOnRetrigger = triggerPanel.getByRole("switch", {
+      name: "Skip during retrigger",
+    })
+    await expect(skipOnRetrigger).toBeVisible()
+    await expect(skipOnRetrigger).not.toBeChecked()
+
+    await skipOnRetrigger.click()
+    await expect(skipOnRetrigger).toBeChecked()
+
+    await configListPage.mobiFlightPage.trackCommand("CommandUpdateConfigItem")
+    await page.getByRole("button", { name: "Apply changes" }).click()
+
+    const commands = await configListPage.mobiFlightPage.getTrackedCommands()
+    const payload = commands?.pop()?.payload
+    expect(payload.item.SkipOnRetrigger).toBe(true)
+  })
 })
 
 test.describe("Input Config Wizard - Preconditions panel", () => {

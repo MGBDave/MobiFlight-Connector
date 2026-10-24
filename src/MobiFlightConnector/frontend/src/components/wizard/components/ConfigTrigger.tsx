@@ -1,6 +1,8 @@
 import ComboBox from "@/components/ComboBox"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { useAppMessage } from "@/lib/hooks/appMessage"
 import messageExchange from "@/lib/messageExchange"
 
@@ -230,6 +232,26 @@ const ConfigTrigger = ({ configItem, setConfigItem }: ConfigTriggerProps) => {
             <IconTrash className="mr-2" />
             <span className="sr-only lg:not-sr-only text-sm">{t("Dialog.InputConfigWizard.ConfigTrigger.ClearInput")}</span>
           </Button>
+        </div>
+        <div className="flex flex-row items-center gap-3">
+          <Switch
+            id="skip-on-retrigger"
+            data-testid="skip-on-retrigger"
+            checked={configItem.SkipOnRetrigger ?? false}
+            onCheckedChange={(checked) =>
+              setConfigItem({ ...configItem, SkipOnRetrigger: !!checked })
+            }
+          />
+          <div className="flex flex-col gap-0.5">
+            <Label htmlFor="skip-on-retrigger" className="cursor-pointer">
+              {t("Dialog.InputConfigWizard.ConfigTrigger.SkipOnRetrigger")}
+            </Label>
+            <p className="text-muted-foreground text-xs">
+              {t(
+                "Dialog.InputConfigWizard.ConfigTrigger.SkipOnRetriggerDescription",
+              )}
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>

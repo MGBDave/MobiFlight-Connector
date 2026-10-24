@@ -139,6 +139,7 @@ namespace MobiFlight.Base
             trackingEvent.Metrics["Settings.MinimizeOnAutoRun"] = Properties.Settings.Default.MinimizeOnAutoRun ? 1 : 0;
             trackingEvent.Metrics["Settings.AutoLoadLinkedConfig"] = Properties.Settings.Default.AutoLoadLinkedConfig ? 1 : 0;
             trackingEvent.Metrics["Settings.AutoRetrigger"] = Properties.Settings.Default.AutoRetrigger ? 1 : 0;
+            trackingEvent.Metrics["Settings.RetriggerEventDelay"] = Properties.Settings.Default.RetriggerEventDelay;
             trackingEvent.Metrics["Settings.RecentFilesMaxCount"] = Properties.Settings.Default.RecentFilesMaxCount;
             trackingEvent.Metrics["Settings.ExecutionSpeed"] = Properties.Settings.Default.PollInterval;
             trackingEvent.Metrics["Settings.TestModeSpeed"] = Properties.Settings.Default.TestTimerInterval;

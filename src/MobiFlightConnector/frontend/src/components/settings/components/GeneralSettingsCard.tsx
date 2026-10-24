@@ -7,6 +7,7 @@ import { LogLevel } from "@/types/log"
 import Settings from "@/types/settings"
 import { Switch } from "@/components/ui/switch"
 import SettingsRow from "./SettingsRow"
+import Input from "@/components/Input"
 import { Slider } from "@/components/ui/slider"
 
 interface GeneralSettingsCardProps {
@@ -16,6 +17,9 @@ interface GeneralSettingsCardProps {
 
 // TestMode interval steps matching WinForms: index 0 (1000ms/slow) to index 4 (50ms/fast)
 const TEST_SPEED_INTERVALS = [1000, 500, 250, 125, 50]
+
+// must match RetriggerEventPacer.MaxDelayMs in the backend
+const RETRIGGER_EVENT_DELAY_MAX_MS = 1000
 
 export default function GeneralSettingsCard({
   values,
@@ -208,6 +212,39 @@ export default function GeneralSettingsCard({
                   onChange("AutoRetrigger", !!checked)
                 }
               />
+            </SettingsRow>
+
+            <SettingsRow
+              label={t("Settings.General.RunOptions.RetriggerEventDelay")}
+              description={t(
+                "Settings.General.RunOptions.RetriggerEventDelayDescription",
+              )}
+              htmlFor="retrigger-event-delay"
+            >
+              <div className="flex shrink-0 items-center gap-2">
+                <Input
+                  id="retrigger-event-delay"
+                  type="number"
+                  min={0}
+                  max={RETRIGGER_EVENT_DELAY_MAX_MS}
+                  step={5}
+                  className="w-20"
+                  value={values.RetriggerEventDelay ?? 0}
+                  onChange={(value) =>
+                    onChange(
+                      "RetriggerEventDelay",
+                      Math.max(
+                        0,
+                        Math.min(
+                          RETRIGGER_EVENT_DELAY_MAX_MS,
+                          parseInt(String(value)) || 0,
+                        ),
+                      ),
+                    )
+                  }
+                />
+                <span className="text-muted-foreground text-sm">ms</span>
+              </div>
             </SettingsRow>
 
             <SettingsRow

@@ -676,5 +676,81 @@ namespace MobiFlight.Tests
         }
 
         #endregion
+
+        #region SkipOnRetrigger
+
+        [TestMethod]
+        public void SkipOnRetrigger_Json_DefaultIsOmittedAndFalse()
+        {
+            // Arrange
+            var o = generateTestObject();
+
+            // Act
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(o);
+            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<InputConfigItem>(json);
+
+            // Assert
+            Assert.DoesNotContain("SkipOnRetrigger", json);
+            Assert.IsFalse(result.SkipOnRetrigger);
+        }
+
+        [TestMethod]
+        public void SkipOnRetrigger_Json_RoundTripsTrue()
+        {
+            // Arrange
+            var o = generateTestObject();
+            o.SkipOnRetrigger = true;
+
+            // Act
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(o);
+            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<InputConfigItem>(json);
+
+            // Assert
+            Assert.Contains(@"""SkipOnRetrigger"":true", json);
+            Assert.IsTrue(result.SkipOnRetrigger);
+        }
+
+        [TestMethod]
+        public void SkipOnRetrigger_Xml_RoundTripsTrue()
+        {
+            // Arrange
+            var o = generateTestObject();
+            o.SkipOnRetrigger = true;
+            var sw = new StringWriter();
+            var xmlWriter = XmlWriter.Create(sw, new XmlWriterSettings() { Indent = true });
+            xmlWriter.WriteStartElement("settings");
+            o.WriteXml(xmlWriter);
+            xmlWriter.WriteEndElement();
+            xmlWriter.Flush();
+
+            // Act
+            var xmlReader = XmlReader.Create(new StringReader(sw.ToString()), new XmlReaderSettings() { IgnoreWhitespace = true });
+            xmlReader.ReadToDescendant("settings");
+            var result = new InputConfigItem();
+            result.ReadXml(xmlReader);
+
+            // Assert
+            Assert.Contains(@"skipOnRetrigger=""true""", sw.ToString());
+            Assert.IsTrue(result.SkipOnRetrigger);
+        }
+
+        [TestMethod]
+        public void SkipOnRetrigger_CloneAndEquals_TakeFlagIntoAccount()
+        {
+            // Arrange
+            var o = generateTestObject();
+            o.SkipOnRetrigger = true;
+
+            // Act
+            var clone = (InputConfigItem)o.Clone();
+            var other = generateTestObject();
+
+            // Assert
+            Assert.IsTrue(clone.SkipOnRetrigger);
+            Assert.IsTrue(o.Equals(clone));
+            Assert.IsFalse(o.Equals(other));
+        }
+
+        #endregion
     }
 }

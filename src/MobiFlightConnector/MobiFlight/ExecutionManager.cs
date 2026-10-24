@@ -100,6 +100,7 @@ namespace MobiFlight
         readonly JoystickManager joystickManager = new JoystickManager();
         readonly MidiBoardManager midiBoardManager = new MidiBoardManager();
         private readonly ConcurrentDictionary<ConfigFile, InputEventExecutor> _inputEventExecutors = new ConcurrentDictionary<ConfigFile, InputEventExecutor>();
+        private readonly RetriggerEventPacer _retriggerEventPacer;
         readonly InputActionExecutionCache inputActionExecutionCache = new InputActionExecutionCache();
         private ScriptRunner scriptRunner = null;
         readonly Dictionary<string, double> ScanForInputThreshold = new Dictionary<string, double>();
@@ -213,6 +214,11 @@ namespace MobiFlight
 
             testModeTimer.Tick += new EventHandler(testModeTimer_Tick);
             SetTestModeInterval(Properties.Settings.Default.TestTimerInterval);
+
+            _retriggerEventPacer = new RetriggerEventPacer(
+                ExecuteInputEvent,
+                () => Properties.Settings.Default.RetriggerEventDelay);
+            RetriggerInputAction.RetriggerStarting += RetriggerInputAction_RetriggerStarting;
 
 #if MOBIFLIGHT
             mobiFlightCache.OnButtonPressed += new ButtonEventHandler(mobiFlightCache_OnButtonPressed);
@@ -899,6 +905,7 @@ namespace MobiFlight
             mobiFlightCache.StopKeepAwake();
 
             isExecuting = false;
+            _retriggerEventPacer.Reset();
 #if ARCAZE
             arcazeCache.Clear();
 #endif
@@ -1049,6 +1056,8 @@ namespace MobiFlight
 
             OnSimAircraftChanged -= scriptRunner.OnSimAircraftChanged;
             OnSimAircraftPathChanged -= scriptRunner.OnSimAircraftPathChanged;
+            RetriggerInputAction.RetriggerStarting -= RetriggerInputAction_RetriggerStarting;
+            _retriggerEventPacer.Reset();
 
             this.OnShutdown?.Invoke(this, new EventArgs());
         }
@@ -1462,7 +1471,6 @@ namespace MobiFlight
 #if MOBIFLIGHT
         void mobiFlightCache_OnButtonPressed(object sender, InputEventArgs e)
         {
-            var updatedInputValues = new Dictionary<string, IConfigItem>();
             var msgEventLabel = e.GetMsgEventLabel();
             var serial = e.Controller.Serial;
 
@@ -1473,13 +1481,28 @@ namespace MobiFlight
                 Log.Instance.log(msgEventLabel, LogSeverity.Info);
             }
 
+            // executes right away, or queued with a delay while a retrigger is in progress
+            _retriggerEventPacer.Handle(e);
+        }
 
+        private void RetriggerInputAction_RetriggerStarting(object sender, EventArgs e)
+        {
+            _retriggerEventPacer.BeginRetrigger();
+        }
+
+        /// <returns>true if at least one action was executed</returns>
+        private bool ExecuteInputEvent(InputEventArgs e)
+        {
+            var updatedInputValues = new Dictionary<string, IConfigItem>();
+            var msgEventLabel = e.GetMsgEventLabel();
+            var executedActions = 0;
 
             foreach (var executor in _inputEventExecutors.Values)
             {
                 try
                 {
-                    var updatedValues = executor.Execute(e, IsStarted());
+                    var updatedValues = executor.Execute(e, IsStarted(), out var executedActionCount);
+                    executedActions += executedActionCount;
 
                     updatedValues.Keys.ToList().ForEach(
                         k => updatedInputValues[k] = updatedValues[k]
@@ -1495,6 +1518,7 @@ namespace MobiFlight
             }
 
             updatedInputValues.Keys.ToList().ForEach(k => this.updatedValues[k] = updatedInputValues[k]);
+            return executedActions > 0;
         }
 
         private void UpdateInputPreconditions()

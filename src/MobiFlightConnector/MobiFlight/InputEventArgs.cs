@@ -35,6 +35,13 @@ namespace MobiFlight
         /// </summary>
         public int? HeldDurationMs { get; set; }
 
+        /// <summary>
+        /// True if the event arrived while a retrigger was in progress, i.e. it most likely
+        /// reports a state that was resent by the retrigger and not a physical change.
+        /// Set by RetriggerEventPacer. Configs with SkipOnRetrigger ignore these events.
+        /// </summary>
+        public bool IsRetrigger { get; set; }
+
         public readonly DateTime Time = DateTime.Now;
 
         public string GetEventActionLabel() => GetEventActionLabel(Value);
@@ -73,6 +80,7 @@ namespace MobiFlight
             clone.SyntheticDelayMs = SyntheticDelayMs;
             clone.SyntheticHoldDelayMs = SyntheticHoldDelayMs;
             clone.HeldDurationMs = HeldDurationMs;
+            clone.IsRetrigger = IsRetrigger;
 
             return clone;
         }
