@@ -85,6 +85,37 @@ test("Confirm saves changes and publishes CommandUpdateSettings", async ({
   expect(lastCommand?.payload.Settings.BetaUpdates).toBe(true)
 })
 
+test("Confirm retrigger event delay is saved", async ({
+  configListPage,
+  page,
+}) => {
+  await configListPage.gotoPage()
+  await configListPage.mobiFlightPage.initWithTestData()
+  await configListPage.mobiFlightPage.trackCommand("CommandUpdateSettings")
+
+  await page
+    .getByRole("menubar")
+    .getByRole("menuitem", { name: "Extras" })
+    .click()
+  await page.getByRole("menuitem", { name: "Settings" }).click()
+  const dialog = page.getByRole("dialog", { name: "Settings" })
+  await expect(dialog).toBeVisible()
+
+  const delayInput = dialog.locator("#retrigger-event-delay")
+  await expect(delayInput).toHaveValue("0")
+  await delayInput.fill("20")
+  await delayInput.blur()
+
+  await dialog.getByRole("button", { name: "Save" }).click()
+  await expect(dialog).not.toBeVisible()
+
+  const trackedCommands =
+    await configListPage.mobiFlightPage.getTrackedCommands()
+  const lastCommand = trackedCommands?.pop()
+  expect(lastCommand?.key).toBe("CommandUpdateSettings")
+  expect(lastCommand?.payload.Settings.RetriggerEventDelay).toBe(20)
+})
+
 test("Confirm cancels changes without publishing command", async ({
   configListPage,
   page,

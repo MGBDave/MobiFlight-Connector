@@ -9,6 +9,12 @@ namespace MobiFlight.InputConfig
         public const String TYPE = "RetriggerInputAction";
         DateTime lastExecution = DateTime.MinValue;
 
+        /// <summary>
+        /// Raised right before the devices are asked to resend their button states,
+        /// so the events that follow can be recognized as retriggered (see RetriggerEventPacer).
+        /// </summary>
+        public static event EventHandler RetriggerStarting;
+
         public override object Clone()
         {
             RetriggerInputAction clone = new RetriggerInputAction();
@@ -31,8 +37,10 @@ namespace MobiFlight.InputConfig
             InputEventArgs args,
             List<ConfigRefValue> configRefs)
         {
-            // only execute if not happened last 1 seconds
+            // only execute if not happened last 5 seconds
             if (DateTime.Now.Ticks  - lastExecution.Ticks < 50000000) return;
+
+            RetriggerStarting?.Invoke(this, EventArgs.Empty);
 
             foreach (MobiFlightModule module in cacheCollection.moduleCache.GetModules()) 
             {

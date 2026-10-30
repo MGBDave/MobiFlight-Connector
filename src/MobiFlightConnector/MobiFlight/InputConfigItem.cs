@@ -41,6 +41,13 @@ namespace MobiFlight
 
         public override IDeviceConfig Device { get; set; }
 
+        /// <summary>
+        /// If true, events that arrive during a retrigger are ignored for this config.
+        /// Useful for momentary push buttons, whose resent RELEASE carries no state.
+        /// </summary>
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public bool SkipOnRetrigger { get; set; }
+
         public InputConfigItem()
         {
             Preconditions = new PreconditionList();
@@ -85,6 +92,11 @@ namespace MobiFlight
             {
                 DeviceType = reader["type"];
                 if (DeviceType == TYPE_ANALOG_OLD) DeviceType = TYPE_ANALOG;
+            }
+
+            if (bool.TryParse(reader["skipOnRetrigger"], out var skipOnRetrigger))
+            {
+                SkipOnRetrigger = skipOnRetrigger;
             }
 
             reader.Read(); // this should be the button or encoder
@@ -238,6 +250,10 @@ namespace MobiFlight
             writer.WriteAttributeString("serial", fullSerial);
             writer.WriteAttributeString("name", this.Device?.Name);
             writer.WriteAttributeString("type", this.Device?.Type ?? TYPE_NOTSET);
+            if (SkipOnRetrigger)
+            {
+                writer.WriteAttributeString("skipOnRetrigger", "true");
+            }
 
             if (this.Device?.Type == TYPE_BUTTON && button != null)
             {
@@ -295,6 +311,7 @@ namespace MobiFlight
             this.encoder = (EncoderInputConfig)config.encoder?.Clone();
             this.analog = (AnalogInputConfig)config.analog?.Clone();
             this.Device = config.Device?.Clone() as IDeviceConfig;
+            this.SkipOnRetrigger = config.SkipOnRetrigger;
         }
 
         public override object Clone()
@@ -372,7 +389,8 @@ namespace MobiFlight
                     encoder.AreEqual(item.encoder) &&
                     analog.AreEqual(item.analog) &&
                     Preconditions.Equals(item.Preconditions) &&
-                    ConfigRefs.Equals(item.ConfigRefs);
+                    ConfigRefs.Equals(item.ConfigRefs) &&
+                    SkipOnRetrigger == item.SkipOnRetrigger;
         }
        public InputAction GetInputAction(InputEventArgs e)
         {

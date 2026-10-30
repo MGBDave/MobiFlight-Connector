@@ -3,6 +3,7 @@ import { LogLevel } from "./log"
 export default interface Settings {
   ArcazeSupportEnabled: boolean
   AutoRetrigger: boolean
+  RetriggerEventDelay?: number
   AutoRun: boolean
   AutoLoadLinkedConfig: boolean
   BetaUpdates: boolean

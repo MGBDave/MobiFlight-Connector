@@ -32,6 +32,8 @@ export interface IConfigItem extends IConfigValueOnlyItem {
   analog?: AnalogTrigger
   ConfigRefs?: ConfigReference[]
   Modifiers?: ModifierList
+  // input configs only: ignore events that arrive during a retrigger
+  SkipOnRetrigger?: boolean
 }
 
 export type ConfigItemStatusType =

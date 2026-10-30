@@ -501,7 +501,9 @@
         "NoControllerFound": "Kein Controller gefunden.",
         "SelectDevice": "Gerät auswählen...",
         "SearchDevice": "Gerät suchen...",
-        "NoDeviceFound": "Kein Gerät gefunden."
+        "NoDeviceFound": "Kein Gerät gefunden.",
+        "SkipOnRetrigger": "Beim Nachdrücken überspringen",
+        "SkipOnRetriggerDescription": "Diesen Eingang ignorieren, während MobiFlight alle Schalter nachdrückt, z. B. für Taster."
       },
       "Action": {
         "Title": "Aktionen",
@@ -942,6 +944,8 @@
       "RunOptions": {
         "Title": "Start- und Ausführungsoptionen",
         "AutoRetrigger": "Automatisches Nachdrücken im \"Run\"-Modus ausführen",
+        "RetriggerEventDelay": "Verzögerung zwischen nachgedrückten Ereignissen",
+        "RetriggerEventDelayDescription": "Verteilt die beim Nachdrücken gesendeten Ereignisse zeitlich, für Add-ons, die bei vielen gleichzeitigen Befehlen abstürzen. 0 sendet alle auf einmal.",
         "MinimizeOnAutoRun": "Bei AutoRun minimieren"
       },
       "HubHop": {

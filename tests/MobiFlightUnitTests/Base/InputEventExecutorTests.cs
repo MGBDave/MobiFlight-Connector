@@ -208,6 +208,99 @@ namespace MobiFlight.Execution.Tests
             );
         }
 
+        #region SkipOnRetrigger
+
+        private InputConfigItem CreateReleaseConfig(bool skipOnRetrigger)
+        {
+            return new InputConfigItem
+            {
+                Active = true,
+                Controller = SerialNumber.CreateController("/ 123"),
+                Device = InputConfigItem.CreateInputDevice(InputConfigItem.TYPE_BUTTON, "Device1"),
+                Name = "MomentaryButton",
+                SkipOnRetrigger = skipOnRetrigger,
+                button = new ButtonInputConfig
+                {
+                    onRelease = new VariableInputAction()
+                    {
+                        Variable = new MobiFlightVariable() { Name = "TestVariable", Number = 0 }
+                    }
+                }
+            };
+        }
+
+        private static InputEventArgs CreateReleaseEvent(bool isRetrigger)
+        {
+            return new InputEventArgs
+            {
+                Controller = new Controller() { Serial = "123" },
+                InputType = DeviceType.Button,
+                Device = new DeviceReference() { Name = "Device1" },
+                Value = (int)MobiFlightButton.InputEvent.RELEASE,
+                IsRetrigger = isRetrigger,
+            };
+        }
+
+        [TestMethod]
+        public void Execute_RetriggerEventOnConfigWithSkipOnRetrigger_SkipsExecution()
+        {
+            // Arrange
+            var config = CreateReleaseConfig(skipOnRetrigger: true);
+            _configItems.Add(config);
+
+            // Act
+            var result = _executor.Execute(CreateReleaseEvent(isRetrigger: true), isStarted: true);
+
+            // Assert
+            Assert.IsEmpty(result);
+            _mockLogAppender.Verify(
+                appender => appender.log(It.Is<string>(msg => msg.Contains($@"Skipping ""{config.Name}"" during retrigger.")), LogSeverity.Debug),
+                Times.Once
+            );
+            _mockLogAppender.Verify(
+                appender => appender.log(It.Is<string>(msg => msg.Contains("Executing")), It.IsAny<LogSeverity>()),
+                Times.Never
+            );
+        }
+
+        [TestMethod]
+        public void Execute_PhysicalEventOnConfigWithSkipOnRetrigger_Executes()
+        {
+            // Arrange
+            var config = CreateReleaseConfig(skipOnRetrigger: true);
+            _configItems.Add(config);
+
+            // Act
+            var result = _executor.Execute(CreateReleaseEvent(isRetrigger: false), isStarted: true);
+
+            // Assert
+            Assert.HasCount(1, result);
+            _mockLogAppender.Verify(
+                appender => appender.log(It.Is<string>(msg => msg.Contains($@"Executing ""{config.Name}"". (RELEASE)")), LogSeverity.Info),
+                Times.Once
+            );
+        }
+
+        [TestMethod]
+        public void Execute_RetriggerEventOnConfigWithoutSkipOnRetrigger_Executes()
+        {
+            // Arrange
+            var config = CreateReleaseConfig(skipOnRetrigger: false);
+            _configItems.Add(config);
+
+            // Act
+            var result = _executor.Execute(CreateReleaseEvent(isRetrigger: true), isStarted: true);
+
+            // Assert
+            Assert.HasCount(1, result);
+            _mockLogAppender.Verify(
+                appender => appender.log(It.Is<string>(msg => msg.Contains($@"Executing ""{config.Name}"". (RELEASE)")), LogSeverity.Info),
+                Times.Once
+            );
+        }
+
+        #endregion
+
         [TestMethod]
         public void Execute_ConfigWithoutOnLongRelease_AlwaysDispatchesReleaseRegardlessOfHeldDuration()
         {

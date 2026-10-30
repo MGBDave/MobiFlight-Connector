@@ -52,6 +52,13 @@ namespace MobiFlight.Execution
 
         public Dictionary<string, IConfigItem> Execute(InputEventArgs inputEvent, bool isStarted)
         {
+            return Execute(inputEvent, isStarted, out _);
+        }
+
+        /// <param name="executedActionCount">Number of configs whose action was executed for this event.</param>
+        public Dictionary<string, IConfigItem> Execute(InputEventArgs inputEvent, bool isStarted, out int executedActionCount)
+        {
+            executedActionCount = 0;
             var updatedValues = new Dictionary<string, IConfigItem>();
             string inputKey = CreateInputKey(inputEvent);
 
@@ -120,6 +127,15 @@ namespace MobiFlight.Execution
                     continue;
                 }
 
+                if (e.IsRetrigger && cfg.SkipOnRetrigger)
+                {
+                    if (hasMatchingAction)
+                    {
+                        Log.Instance.log($"{cfgEventLabel} => Skipping \"{cfg.Name}\" during retrigger.", LogSeverity.Debug);
+                    }
+                    continue;
+                }
+
                 try
                 {
                     if (!CheckPreconditions(cfg))
@@ -166,6 +182,7 @@ namespace MobiFlight.Execution
                         cfg.Status[ConfigItemStatusType.Modifier] = ex.Message;
                     }
 
+                    executedActionCount++;
                     cfg.execute(cacheCollection, e, references);
                 }
                 catch (Exception ex)
