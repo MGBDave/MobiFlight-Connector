@@ -859,7 +859,7 @@ namespace MobiFlight
             simConnectCache.Start();
             xplaneCache.Start();
 
-            scriptRunner.StartUp();
+            scriptRunner.Start();
 
             // the timer has to be enabled before the 
             // on start actions are executed
@@ -900,24 +900,38 @@ namespace MobiFlight
 
         public void Stop()
         {
+            if (IsStarted()) StopExecution();
+
+            StopControllers();
+        }
+
+        // only exists while the config is being executed
+        private void StopExecution()
+        {
             timer.Stop();
             frontendUpdateTimer.Stop();
-            mobiFlightCache.StopKeepAwake();
 
             isExecuting = false;
             _retriggerEventPacer.Reset();
-#if ARCAZE
-            arcazeCache.Clear();
-#endif
             scriptRunner.Stop();
-            mobiFlightCache.Stop();
             simConnectCache.Stop();
             xplaneCache.Stop();
-            joystickManager.Stop();
-            midiBoardManager.Stop();
             inputActionExecutionCache.Clear();
             ClearConfigItemStatus();
             ClearErrorMessages();
+        }
+
+        // always runs, because a freshly connected controller and
+        // their display devices may show stale data;
+        // each controller decides on its own whether there is anything to stop
+        private void StopControllers()
+        {
+#if ARCAZE
+            arcazeCache.Clear();
+#endif
+            mobiFlightCache.Stop();
+            joystickManager.Stop();
+            midiBoardManager.Stop();
         }
 
         private void ClearConfigItemStatus()
@@ -968,8 +982,6 @@ namespace MobiFlight
         public void TestModeStop()
         {
             testModeTimer.Stop();
-
-            mobiFlightCache.StopKeepAwake();
 
             // make sure every device is turned off
             mobiFlightCache.Stop();
